@@ -1,45 +1,58 @@
-// server.js
 const express = require('express');
-const { Liquid } = require('liquidjs');
 const path = require('path');
+const { Liquid } = require('liquidjs');
 
 const app = express();
 
-// Initialize LiquidJS
+// Create a Liquid engine instance
 const engine = new Liquid({
   root: path.resolve(__dirname, 'themes'), // Path to themes directory
+  partials: true,                          // Enable partials
   extname: '.liquid',                      // File extension for Liquid templates
 });
 
-// Serve static files (CSS, JS, images)
+// Serve static files (CSS, JS, images) from the assets directory
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Middleware to render Liquid templates
-app.get('/:theme/:template', async (req, res) => {
-  const { theme, template } = req.params;
-  console.log({
-    theme: theme,
-    template: template,
-  });
+app.get('/', async (req, res) => {
   try {
-    // Render the requested template with LiquidJS
-    const templateUrl = `${theme}/${template}.liquid`;
-    console.log({
-      templateUrl: templateUrl,
-    })
-    const html = await engine.render(templateUrl, {
+    const html = await engine.renderFile('index.liquid', {
       title: 'My Online Store',
       products: [], // Example data
     });
     res.send(html);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error rendering template');
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.get('/:theme', async (req, res) => {
+  const { theme } = req.params;
+
+  try {
+    const html = await engine.renderFile(`${theme}/index.liquid`, {
+      title: 'My Online Store'
+    });
+    res.send(html);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.get('/:lang/:theme/:template', async (req, res) => {
+  const { lang, theme, template } = req.params;
+
+  try {
+    const html = await engine.renderFile(`${theme}/${template}.liquid`, {
+      title: 'My Online Store',
+      lang
+    });
+    res.send(html);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
