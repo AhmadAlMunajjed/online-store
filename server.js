@@ -4,11 +4,12 @@ const { Liquid } = require('liquidjs');
 
 const app = express();
 
+const themesUri = path.resolve(__dirname, 'themes')
 // Create a Liquid engine instance
 const engine = new Liquid({
-  root: path.resolve(__dirname, 'themes'), // Path to themes directory
-  partials: true,                          // Enable partials
-  extname: '.liquid',                      // File extension for Liquid templates
+  root: themesUri,    // Path to themes directory
+  partials: true,     // Enable partials
+  extname: '.liquid', // File extension for Liquid templates
 });
 
 // Serve static files (CSS, JS, images) from the assets directory
@@ -28,6 +29,7 @@ app.get('/', async (req, res) => {
 
 app.get('/:theme', async (req, res) => {
   const { theme } = req.params;
+  const themeUri = `${themesUri}/${theme}`
 
   try {
     const html = await engine.renderFile(`${theme}/index.liquid`, {
@@ -41,8 +43,13 @@ app.get('/:theme', async (req, res) => {
 
 app.get('/:lang/:theme/:template', async (req, res) => {
   const { lang, theme, template } = req.params;
-
+  const themeUri = `${themesUri}/${theme}`
   try {
+    // create translation filter that loads locale file
+    engine.registerFilter('t', function (str) {
+      return require(`${themeUri}/locales/${lang}.json`)[str] || str;
+    });
+
     const html = await engine.renderFile(`${theme}/${template}.liquid`, {
       title: 'My Online Store',
       lang
