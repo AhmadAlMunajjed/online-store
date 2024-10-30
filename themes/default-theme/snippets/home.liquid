@@ -1,0 +1,7 @@
+<!-- themes/default-theme/snippets/home.liquid -->
+<h2>Featured Products</h2>
+<ul>
+    {% for product in products %}
+        <li>{{ product.name }} - {{ product.price | currency }}</li>
+    {% endfor %}
+</ul>
