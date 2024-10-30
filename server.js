@@ -52,7 +52,8 @@ app.get('/:lang/:theme/:template', async (req, res) => {
 
     const html = await engine.renderFile(`${theme}/${template}.liquid`, {
       title: 'My Online Store',
-      lang
+      lang,
+      dir: lang === 'ar' ? 'rtl' : 'ltr',
     });
     res.send(html);
   } catch (err) {
