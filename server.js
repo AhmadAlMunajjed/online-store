@@ -52,6 +52,10 @@ app.get('/:lang/:theme/:template', async (req, res) => {
 
     const html = await engine.renderFile(`${theme}/${template}.liquid`, {
       title: 'My Online Store',
+      meta_description: 'This is an online store selling various products.',
+      meta_keywords: 'online store, ecommerce, products',
+      url: req.protocol + '://' + req.get('host') + req.originalUrl,
+      image: req.protocol + '://' + req.get('host') + '/assets/logo.png',
       lang,
       dir: lang === 'ar' ? 'rtl' : 'ltr',
     });
