@@ -16,49 +16,39 @@ const engine = new Liquid({
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.get('/', async (req, res) => {
+  const queryParams = req.query;
+  let { lang } = req.params;
+  const { theme, template } = queryParams;
+  if (!theme || !template) {
+    return res.status(400).send('Missing theme or template query parameter');
+  }
+  if (!lang) {
+    // get list of store languages, check if browser language is supported so set it. otherwise, set default language
+    lang = 'en';
+  }
   try {
-    const html = await engine.renderFile('index.liquid', {
-      title: 'My Online Store',
-      products: [], // Example data
-    });
+    const requestUrl = req.protocol + '://' + req.get('host')
+    const url = requestUrl + req.originalUrl;
+    const image = requestUrl + '/assets/logo.png'
+    const html = await generateHtmlResponse(url, image, lang, theme, template);
     res.send(html);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
-app.get('/:theme', async (req, res) => {
-  const { theme } = req.params;
-  const themeUri = `${themesUri}/${theme}`
-
-  try {
-    const html = await engine.renderFile(`${theme}/index.liquid`, {
-      title: 'My Online Store'
-    });
-    res.send(html);
-  } catch (err) {
-    res.status(500).send(err.message);
+app.get('/:lang', async (req, res) => {
+  const queryParams = req.query;
+  const { lang } = req.params;
+  const { theme, template } = queryParams;
+  if (!theme || !template) {
+    return res.status(400).send('Missing theme or template query parameter');
   }
-});
-
-app.get('/:lang/:theme/:template', async (req, res) => {
-  const { lang, theme, template } = req.params;
-  const themeUri = `${themesUri}/${theme}`
   try {
-    // create translation filter that loads locale file
-    engine.registerFilter('t', function (str) {
-      return require(`${themeUri}/locales/${lang}.json`)[str] || str;
-    });
-
-    const html = await engine.renderFile(`${theme}/${template}.liquid`, {
-      title: 'My Online Store',
-      meta_description: 'This is an online store selling various products.',
-      meta_keywords: 'online store, ecommerce, products',
-      url: req.protocol + '://' + req.get('host') + req.originalUrl,
-      image: req.protocol + '://' + req.get('host') + '/assets/logo.png',
-      lang,
-      dir: lang === 'ar' ? 'rtl' : 'ltr',
-    });
+    const requestUrl = req.protocol + '://' + req.get('host')
+    const url = requestUrl + req.originalUrl;
+    const image = requestUrl + '/assets/logo.png'
+    const html = await generateHtmlResponse(url, image, lang, theme, template);
     res.send(html);
   } catch (err) {
     res.status(500).send(err.message);
@@ -68,3 +58,23 @@ app.get('/:lang/:theme/:template', async (req, res) => {
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
+
+async function generateHtmlResponse(url, image, lang, theme, template) {
+  const themeUri = `${themesUri}/${theme}`;
+
+  // create translation filter that loads locale file
+  engine.registerFilter('t', function (str) {
+    return require(`${themeUri}/locales/${lang}.json`)[str] || str;
+  });
+
+  const html = await engine.renderFile(`${theme}/${template}.liquid`, {
+    title: 'My Online Store',
+    meta_description: 'This is an online store selling various products.',
+    meta_keywords: 'online store, ecommerce, products',
+    url: url,
+    image: image,
+    lang,
+    dir: lang === 'ar' ? 'rtl' : 'ltr',
+  });
+  return html
+}
