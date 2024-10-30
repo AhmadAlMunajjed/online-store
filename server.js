@@ -4,14 +4,6 @@ const { Liquid } = require('liquidjs');
 
 const app = express();
 
-const themesUri = path.resolve(__dirname, 'themes')
-// Create a Liquid engine instance
-const engine = new Liquid({
-  root: themesUri,    // Path to themes directory
-  partials: true,     // Enable partials
-  extname: '.liquid', // File extension for Liquid templates
-});
-
 // Serve static files (CSS, JS, images) from the assets directory
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -60,14 +52,21 @@ app.listen(3000, () => {
 });
 
 async function renderHtml(url, image, lang, theme, template) {
+  const themesUri = path.resolve(__dirname, 'themes')
   const themeUri = `${themesUri}/${theme}`;
+  // Create a Liquid engine instance
+  const engine = new Liquid({
+    root: themeUri,    // Path to themes directory
+    extname: '.liquid', // File extension for Liquid templates
+    layouts: themeUri + '/layouts', // Path to layouts directory
+  });
 
   // create translation filter that loads locale file
   engine.registerFilter('t', function (str) {
     return require(`${themeUri}/locales/${lang}.json`)[str] || str;
   });
 
-  const html = await engine.renderFile(`${theme}/${template}.liquid`, {
+  const html = await engine.renderFile(`partials/${template}.liquid`, {
     title: 'My Online Store',
     meta_description: 'This is an online store selling various products.',
     meta_keywords: 'online store, ecommerce, products',

@@ -12,15 +12,12 @@
     <meta property="og:url" content="{{ url }}">
     <meta property="og:image" content="{{ image }}">
 
-    {% if content_for_head != blank %}
-        {{ content_for_head }}
-    {% endif %}
+    {% block header %}{% endblock %}
+
 </head>
 <body>
-    {{ content }}
-    
-    {% if content_for_after_body != blank %}
-        {{ content_for_after_body }}
-    {% endif %}
+    {% block content %}{% endblock %}
+
+    {% block footer %}{% endblock %}
 </body>
 </html>

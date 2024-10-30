@@ -1,18 +1,18 @@
 {% layout 'main' %}
 
-{% content_for head %}
-    <meta name="description" content="Welcome to the best online store!">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% block header %}
     <link rel="stylesheet" href="{{ 'style.css' | asset_url }}">
-{% endcontent_for %}
+{% endblock %}
 
+{% block content %}
 <main>
     Hi default theme home page!
 
     language: {{lang}}
     {{ 'title' | t }}
 </main>
+{% endblock %}
 
-{% content_for after_body %}
+{% block footer %}
     <script src="{{ 'main.js' | asset_url }}"></script>
-{% endcontent_for %}
+{% endblock %}
