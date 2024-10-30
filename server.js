@@ -30,7 +30,7 @@ app.get('/', async (req, res) => {
     const requestUrl = req.protocol + '://' + req.get('host')
     const url = requestUrl + req.originalUrl;
     const image = requestUrl + '/assets/logo.png'
-    const html = await generateHtmlResponse(url, image, lang, theme, template);
+    const html = await renderHtml(url, image, lang, theme, template);
     res.send(html);
   } catch (err) {
     res.status(500).send(err.message);
@@ -48,7 +48,7 @@ app.get('/:lang', async (req, res) => {
     const requestUrl = req.protocol + '://' + req.get('host')
     const url = requestUrl + req.originalUrl;
     const image = requestUrl + '/assets/logo.png'
-    const html = await generateHtmlResponse(url, image, lang, theme, template);
+    const html = await renderHtml(url, image, lang, theme, template);
     res.send(html);
   } catch (err) {
     res.status(500).send(err.message);
@@ -59,7 +59,7 @@ app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
 
-async function generateHtmlResponse(url, image, lang, theme, template) {
+async function renderHtml(url, image, lang, theme, template) {
   const themeUri = `${themesUri}/${theme}`;
 
   // create translation filter that loads locale file
