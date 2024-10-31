@@ -18,31 +18,8 @@ const themesOptions = {
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.get('/', async (req, res) => {
-  const queryParams = req.query;
-  let { lang } = req.params;
-  const { theme, template } = queryParams;
-  if (!theme || !template) {
-    return res.status(400).send('Missing theme or template query parameter');
-  }
-  if (!lang) {
-    // get list of store languages, check if browser language is supported so set it. otherwise, set default language
-    lang = 'en';
-  }
-  try {
-    const requestUrl = req.protocol + '://' + req.get('host')
-    const url = requestUrl + req.originalUrl;
-    const image = requestUrl + '/assets/logo.png'
-    const html = await renderHtml(url, image, lang, theme, template);
-    res.send(html);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-app.get('/:lang', async (req, res) => {
-  const queryParams = req.query;
-  const { lang } = req.params;
-  const { theme, template } = queryParams;
+  const { } = req.params;
+  const { theme, template, lang } = req.query;
   if (!theme || !template) {
     return res.status(400).send('Missing theme or template query parameter');
   }
@@ -50,7 +27,7 @@ app.get('/:lang', async (req, res) => {
     const requestUrl = req.protocol + '://' + req.get('host')
     const url = requestUrl + req.originalUrl;
     const image = requestUrl + '/assets/logo.png'
-    const html = await renderHtml(url, image, lang, theme, template);
+    const html = await renderHtml(url, image, lang ?? 'en', theme, template);
     res.send(html);
   } catch (err) {
     res.status(500).send(err.message);
@@ -67,7 +44,7 @@ async function renderHtml(url, image, lang, theme, template) {
   const themeUri = `${themesUri}/${theme}/`;
   const themeAssetsUri = `${themeUri}/assets`;
   const themeLocalsUri = `${themeUri}/locales`;
-  
+
   console.log({
     themeUri,
     themeAssetsUri,
@@ -111,9 +88,15 @@ async function renderHtml(url, image, lang, theme, template) {
     fs: customResolver
   });
 
-  const response = await fetch(`${themeLocalsUri}/${lang}.json`);
-  const local = await response.json();
-  console.log('local', local)
+  const local = {}
+
+  try {
+    const response = await fetch(`${themeLocalsUri}/${lang}.json`);
+    local = await response.json();
+    console.log('local', local)
+  } catch (error) {
+    console.log('error loading local file', error)
+  }
 
   // create translation filter that loads locale file
   engine.registerFilter('t', async function (str) {
