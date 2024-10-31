@@ -11,7 +11,7 @@ const themesOptions = {
   layouts: 'layouts',
   partials: 'partials',
   // Path to themes directory if files are remote
-  themesUri: 'http://localhost:3000/assets/themes'// 'https://assts.tajer.store/themes',
+  themesUri: 'https://assts.tajer.store/themes',// 'http://localhost:3000/assets/themes'
 };
 
 // Serve static files (CSS, JS, images) from the assets directory
@@ -42,8 +42,8 @@ async function renderHtml(url, image, lang, theme, template) {
 
   const themesUri = themesOptions.themesUri;
   const themeUri = `${themesUri}/${theme}/`;
-  const themeAssetsUri = `${themeUri}/assets`;
-  const themeLocalsUri = `${themeUri}/locales`;
+  const themeAssetsUri = `${themeUri}assets`;
+  const themeLocalsUri = `${themeUri}locales`;
 
   console.log({
     themeUri,
@@ -86,9 +86,10 @@ async function renderHtml(url, image, lang, theme, template) {
     fs: customResolver
   });
 
-  const local = {}
+  let local = {}
 
   try {
+    console.log('loading local file', `${themeLocalsUri}/${lang}.json`)
     const response = await fetch(`${themeLocalsUri}/${lang}.json`);
     local = await response.json();
     console.log('local', local)
