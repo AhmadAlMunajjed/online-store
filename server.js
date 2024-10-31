@@ -65,16 +65,14 @@ async function renderHtml(url, image, lang, theme, template) {
     },
     async readFile(filePath) {
       // Construct the full URL to the file
-      const url = filePath//`${themeUri}/${filePath}`;
-      console.log('readFile', url);
+      console.log('readFile', filePath);
       // Fetch the file content from the remote URL
-      const response = await fetch(url);
+      const response = await fetch(filePath);
       return response.text();
     },
     async exists(filePath) {
-      const url = filePath//`${themeUri}/${filePath}`;
-      console.log('exists', url);
-      const response = await fetch(url);
+      console.log('exists', filePath);
+      const response = await fetch(filePath);
       return response.status === 200;
     },
 
