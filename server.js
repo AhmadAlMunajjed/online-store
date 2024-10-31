@@ -83,7 +83,8 @@ async function renderHtml(url, image, lang, theme, template) {
     extname: themesOptions.extsionName,
     layouts: themeUri + themesOptions.layouts + '/',
     relativeReference: false,
-    fs: customResolver
+    fs: customResolver,
+    cache: false,
   });
 
   let local = {}
